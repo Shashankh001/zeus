@@ -30,7 +30,6 @@ print(Fore.LIGHTYELLOW_EX + '[START] Initialising software.' + Fore.RESET)
 
 
 
-
 HEADERLENGTH = 10
 
 settings = open('settings.json', 'r')
