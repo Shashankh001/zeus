@@ -1,17 +1,12 @@
 [
     {
-        "Name": "Chanti",
+        "Name": "ssnkh",
         "ID": 1,
         "IP": "49.37.156.7"
     },
     {
-        "Name": "Hari",
+        "Name": "chanti",
         "ID": 2,
-        "IP": "49.37.156.7"
-    },
-    {
-        "Name": "Eshitha",
-        "ID": 3,
         "IP": "49.37.156.7"
     }
 ]

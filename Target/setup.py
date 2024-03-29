@@ -14,7 +14,12 @@ myip = get('https://api.ipify.org').text
 print("Registering computer with the server.")
 
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-s.connect((ip,port))
+try:
+    s.connect((ip,port))
+except:
+    print("Server is offline. Try again later.")
+    while True:
+        pass
 
 s.send(bytes(f'SETUP|{name}|{myip}','utf-8'))
 

