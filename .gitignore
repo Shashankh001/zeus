@@ -2,3 +2,9 @@
 rhacker.py - Shortcut.lnk
 server.py - Shortcut.lnk
 target.py - Shortcut.lnk
+target.py SECOND - Shortcut.lnk
+*.lnk
+Target - 2/settings.json
+Target - 2/setup.py
+Target - 2/target.py
+target.py SECOND - Shortcut.lnk
