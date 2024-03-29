@@ -13,7 +13,8 @@ from requests import get
 import sys
 import mss
 import json
-
+from PIL import Image
+from io import BytesIO
 
 with open('settings.json', 'r') as f:
     data = json.load(f)
@@ -167,7 +168,12 @@ while True:
 
         while True:
             ss = screen.grab(monitor)
-            ss_pkld = pickle.dumps(ss)
+
+            image_buffer = BytesIO()
+            img = Image.frombytes("RGB", ss.size, ss.rgb)
+            img.save(image_buffer, format="JPEG", quality=50)
+
+            ss_pkld = pickle.dumps(image_buffer)
 
             byte_size = len(ss_pkld)
             ss_pckd = struct.pack('Q', byte_size)

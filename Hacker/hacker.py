@@ -163,17 +163,15 @@ def get_screen_capture(id):
 
         data = b''
         while len(data) < ss_size:
-            packet = s.recv(min(ss_size - len(data), 1024*1024*1024*5))
+            packet = s.recv(min(ss_size - len(data), 1024*1024*32))
             data += packet
             
         ss = pickle.loads(data)
 
-        img = Image.frombytes('RGB', ss.size, ss.rgb)
-        img = np.array(img)
+        image_array = cv2.imdecode(np.frombuffer(ss.getvalue(), np.uint8), cv2.IMREAD_COLOR) 
 
-        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-        cv2.imshow(f'Screen Capture', rgb_img)
+        cv2.imshow(f'Screen Capture', image_array)
+        cv2.resizeWindow("Screen Capture", 1920,1080) 
 
         if cv2.waitKey(1) & 0xFF == ord('\x1b'):
             s.send(bytes('N'.encode()))
