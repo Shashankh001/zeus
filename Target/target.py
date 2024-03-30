@@ -17,7 +17,7 @@ from PIL import Image
 from io import BytesIO
 import pyautogui
 
-with open('D:\\Workspace\\Code\Spyware\\zeus\\Target\\settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
     IP = data[0]["IP"] 
     PORT = data[0]["PORT"] 
