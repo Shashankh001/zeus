@@ -9,3 +9,4 @@ Target - 2/setup.py
 Target - 2/target.py
 target.py SECOND - Shortcut.lnk
 Target/__pycache__/target.cpython-39.pyc
+service-error.log
