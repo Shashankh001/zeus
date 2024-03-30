@@ -253,7 +253,7 @@ ID: {targets_list[g]["id"]}
 
                         data = b''
                         while len(data) < ss_size_unpckd:
-                            packet = ts.recv(min(ss_size_unpckd - len(data), 1024*1024*32))
+                            packet = ts.recv(min(ss_size_unpckd - len(data), 1024*1024*64))
                             data += packet                        
 
                         cs.send(ss_size)

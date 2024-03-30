@@ -163,7 +163,7 @@ def get_screen_capture(id):
 
         data = b''
         while len(data) < ss_size:
-            packet = s.recv(min(ss_size - len(data), 1024*1024*32))
+            packet = s.recv(min(ss_size - len(data), 1024*1024*64))
             data += packet
             
         ss = pickle.loads(data)
