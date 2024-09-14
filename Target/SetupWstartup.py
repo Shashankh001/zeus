@@ -1,3 +1,6 @@
+# FOR COMMERCIAL PURPOSES ONLY.
+# Manual Setup
+
 import json
 import socket
 from requests import get

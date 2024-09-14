@@ -1,3 +1,8 @@
+# Problem line:106
+# Need to encrypt the json file otherwise if the file is found, Server IP will be leaked
+
+
+
 import socket
 import time
 import cv2

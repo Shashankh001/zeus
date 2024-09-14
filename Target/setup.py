@@ -1,3 +1,7 @@
+# BASIC SETUP CODE
+# Make another setup code to automatically setup the target
+# This is MANUAL only.
+
 import json
 import socket
 from requests import get
